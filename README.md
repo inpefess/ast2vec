@@ -120,8 +120,8 @@ i7 CPU and took roughly one week of real time.
 ## License
 
 All code enclosed in this repository is licensed under the
-[GNU General Public License (Version 3)][GPLv3]. This documentation is
-licensed under [Creative Commons Attribution (CC-BY 4.0)][CCBY].
+[GNU General Public License (Version 3)][GPLv3]. This documentation as well as the
+neural network parameters are licensed under [Creative Commons Attribution Share-Alike (CC-BY-SA 4.0)][CCBYSA].
 
 ## Dependencies
 
@@ -139,7 +139,7 @@ please refer to their websites.
 [NCSS]:https://ncss.edu.au "National Computer Science School (NCSS)"
 [grok]:https://groklearning.com/challenge/ "Grok Learning platform"
 [GPLv3]: https://www.gnu.org/licenses/gpl-3.0.en.html "The GNU General Public License Version 3"
-[CCBY]:https://creativecommons.org/licenses/by/4.0/ "Creative Commons Attribution 4.0 International (CC BY 4.0) License"
+[CCBYSA]:https://creativecommons.org/licenses/by-sa/4.0/ "Creative Commons Attribution 4.0 International (CC BY SA 4.0) License"
 [np]: http://numpy.org/ "Numpy"
 [sklearn]: https://scikit-learn.org/stable/ "Scikit-learn"
 [torch]:https://pytorch.org/ "pyTorch"
