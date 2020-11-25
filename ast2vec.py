@@ -176,7 +176,7 @@ def progress_pca(x, y, X):
     x: ndarray of size DIM_VAE_ OR int
         The start vector OR index of the start vector in the X matrix.
     y: ndarray of size DIM_VAE_ OR int
-        The target Vector OR index of the target vector in the X matrix.
+        The target vector OR index of the target vector in the X matrix.
     X: ndarray of size m x DIM_VAE_
         The data matrix.
 
@@ -554,7 +554,7 @@ def construct_dynamical_system(y, X, traces, regul = 1E-3):
     Parameters
     ----------
     y: ndarray of size DIM_VAE_ OR int
-        The target Vector OR index of the target vector in the X matrix.
+        The target vector OR index of the target vector in the X matrix.
     X: ndarray of size m x DIM_VAE_
         The data matrix.
     traces: list
