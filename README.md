@@ -29,7 +29,7 @@ If you use ast2vec in academic work, please cite the paper
 If you wish to translate a Python program to a vector, you need to apply the
 following steps.
 
-```Python3
+```python
 # compile the Python code into a syntax tree
 src = "print('Hello world!')"
 import ast
@@ -42,7 +42,6 @@ model = ast2vec.load_model('ast2vec.pt')
 
 # translate to a vector
 _, x = model.encode(nodes, adj)
-
 ```
 
 The vector `x` is 256-dimensional and represents the syntax tree.
@@ -50,12 +49,15 @@ The vector `x` is 256-dimensional and represents the syntax tree.
 If you wish to decode a vector back into a syntax tree, you need to apply
 the following function.
 
-```Python3
+```python
 nodes, adj, _ = model.decode(x, max_size = 300)
 ```
 
 The optional `max_size` argument is important to prevent endless loops during
 decoding.
+
+The `ast2vec` module also contains functions `encode_trees` and `decode_points`
+to encode and decode multiple objects at the same time.
 
 ## Tutorial
 
