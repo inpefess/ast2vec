@@ -50,11 +50,28 @@ class Tree:
 
     def __str__(self):
         out = str(self._label)
-        if(not self._children):
+        if not self._children:
             return out
         else:
             child_strs = [str(child) for child in self._children]
             return out + '(%s)' % ', '.join(child_strs)
+
+    def pretty_print(self, indent = 2, level = 0):
+        # the initial string is just the node label
+        if level > 0:
+            indent_str = (' ' * indent) * level
+        else:
+            indent_str = ''
+        tree_string = indent_str + str(self._label)
+        # consider the case where node i has children
+        if self._children:
+            # first, translate the children to their tree strings
+            children_strings = []
+            for child in self._children:
+                children_strings.append(child.pretty_print(indent, level + 1))
+            return tree_string + '(\n' + ',\n'.join(children_strings) + '\n' + indent_str + ')'
+        else:
+            return tree_string
 
     def __repr__(self):
         return self.__str__()
@@ -63,6 +80,12 @@ class Tree:
         if isinstance(other, Tree):
             return self._label == other._label and self._children == other._children
         return False
+
+    def size(self):
+        size = 1
+        for child in self._children:
+            size += child.size()
+        return size
 
     def to_list_format(self):
         """ Convers this tree to node list/adjacency list format via depth
@@ -180,7 +203,7 @@ def _tree_to_string(nodes, adj, i, indent = None, with_indices = False):
         tree_string = '%d: %s' % (i, str(nodes[i]))
     else:
         tree_string = str(nodes[i])
-    # consider the case where node i has chidlren
+    # consider the case where node i has children
     if(adj[i]):
         # first, translate the children to their tree strings
         children_strings = []
