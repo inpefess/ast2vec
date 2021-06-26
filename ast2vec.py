@@ -39,7 +39,7 @@ import numpy as np
 DIM_     = 256
 DIM_VAE_ = 256
 
-def load_model(path):
+def load_model(path = 'ast2vec.pt'):
     """ Loads the ast2vec model from the given path.
 
     Parameters
