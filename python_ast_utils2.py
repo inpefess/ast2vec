@@ -221,7 +221,7 @@ def tree_to_ast(tree):
         return ast.AnnAssign(target = child_asts[0], annotation = child_asts[1], value = val)
 
     if tree._label == 'For':
-        return ast.For(target = child_asts[0], iter = child_asts[1], body = child_asts[2:])
+        return ast.For(target = child_asts[0], iter = child_asts[1], body = child_asts[2:], orelse = [])
 
     if tree._label == 'While':
         return ast.For(target = child_asts[0], body = child_asts[1:])
