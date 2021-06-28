@@ -23,7 +23,7 @@ Implements a recursive tree data structure for internal use.
 __author__ = 'Benjamin Paaßen'
 __copyright__ = 'Copyright 2020, Benjamin Paaßen'
 __license__ = 'GPLv3'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __maintainer__ = 'Benjamin Paaßen'
 __email__  = 'benjamin.paassen@sydney.edu.au'
 

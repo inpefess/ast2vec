@@ -23,7 +23,7 @@ Implements a tree grammar.
 __author__ = 'Benjamin Paaßen'
 __copyright__ = 'Copyright 2020, Benjamin Paaßen'
 __license__ = 'GPLv3'
-__version__ = '0.1.0'
+__version__ = '0.2.0'
 __maintainer__ = 'Benjamin Paaßen'
 __email__  = 'benjamin.paassen@sydney.edu.au'
 
@@ -125,10 +125,8 @@ class TreeGrammar:
 
         Returns
         -------
-        nodes: list
-            The nodes list of the output tree.
-        adj: list
-            The adjacency list of the output tree.
+        tree: class tree.Tree
+            The output tree.
 
         Raises
         ------
@@ -219,9 +217,8 @@ class TreeGrammar:
         # throw an error if the stack is not empty yet
         if not max_size_applies and stk:
             raise ValueError('There is no rule left anymore but there are still nonterminals left in the tree')
-        # return the final tree in node list adjacency list format
-        nodes, adj = parent._children[0].to_list_format()
-        return nodes, adj
+        # return the final tree
+        return parent._children[0]
 
     def __str__(self):
         out = 'Alphabet: %s\nNonterminals: %s\nStarting Symbol: %s\nRules: {' % (str(self._alphabet), str(self._nonts), str(self._start))
@@ -482,136 +479,6 @@ class TreeParser:
                             raise ValueError('The given grammar was ambiguous: There are two production rules with an intersecting right-hand side, namely %s -> %s(%s) and %s -> %s(%s), both accepting %s' % (left, sym, right_str, left2, sym, right_str2, str(intersect)))
                     # if that is not the case, append the new rule
                     sym_rules.append((left, r, rights))
-
-    def accepts(self, nodes, adj):
-        """ Checks whether the given tree lies in the tree language of this
-        parser.
-
-        Parameters
-        ----------
-        nodes: list
-            a node list for the input tree.
-        adj: list
-            an adjacency list for the input tree.
-
-        Returns
-        -------
-        res: bool
-            True if the input tree is part of the language and False
-            otherwise.
-
-        Raises
-        ------
-        ValueError
-            If the input is not a tree.
-
-        """
-        # retrieve the root
-        r = tree.root(adj)
-        # parse the input recursively
-        try:
-            nont, seq = self._parse(nodes, adj, r)
-            # check if we got the starting symbol out
-            return nont == self._grammar._start
-        except ValueError:
-            # return false if we get an exception
-            return False
-
-    def parse(self, nodes, adj):
-        """ Retrieves the rule sequence which generates the given tree.
-
-        Parameters
-        ----------
-        nodes: list
-            a node list for the input tree.
-        adj: list
-            an adjacency list for the input tree.
-
-        Returns
-        -------
-        seq: list
-            a rule sequence seq such that self._grammar.produce(seq) is
-            equal to nodes, adj.
-
-        Raises
-        ------
-        ValueError
-            If the input is not a tree or not part of the language.
-
-        """
-        # retrieve the root
-        r = tree.root(adj)
-        # parse the input recursively
-        nont, seq = self._parse(nodes, adj, r)
-        # check if we got the starting symbol out
-        if(nont == self._grammar._start):
-            # if so, return the sequence
-            return seq
-        else:
-            # otherwise, return None
-            raise ValueError('Parsing ended with symbol %s, which is not the starting symbol %s' % (str(nont), str(self._grammar._start)))
-
-    def _parse(self, nodes, adj, i):
-        # check if the current node is in the alphabet at all
-        if(nodes[i] not in self._grammar._alphabet):
-            raise ValueError('%s is not part of the alphabet' % str(nodes[i]))
-        # then, parse all the children
-        actual_rights = []
-        seqs = []
-        for j in adj[i]:
-            # get the nonterminal and the rule sequence which
-            # generates the jth subtree
-            nont_j, seq_j = self._parse(nodes, adj, j)
-            # otherwise, append it to the child nont list
-            actual_rights.append(nont_j)
-            # and append the rule sequence to the sequence which
-            # generates the ith subtree
-            seqs.append(seq_j)
-        # retrieve the matching production rule for the current situation
-        for left, r, rights in self._rules[nodes[i]]:
-            match = rule_matches(rights, actual_rights)
-            if(match is not None):
-                if(len(match) != len(rights)):
-                    raise ValueError('Internal error: Match length does not correspond to rule length')
-                # build the rule sequence generating the current subtree.
-                # we first use rule r
-                seq = [r]
-                # then, process the match entry by entry
-                c = 0
-                for a in range(len(rights)):
-                    if(isinstance(rights[a], str)):
-                        if(rights[a].endswith('?')):
-                            # if the ath nonterminal is optional, use a 1
-                            # production rule if we matched something with
-                            # this symbol and 0 otherwise.
-                            if(match[a]):
-                                seq.append(1)
-                                # then produce the current child
-                                seq += seqs[c]
-                                c += 1
-                            else:
-                                seq.append(0)
-                            continue
-                        if(rights[a].endswith('*')):
-                            # if the ath nonterminal is starred, use a 1
-                            # production rule for every matched symbol
-                            for m in range(len(match[a])):
-                                seq.append(1)
-                                # then produce the matched child
-                                seq += seqs[c]
-                                c += 1
-                            # finally, use a 0 rule to end the production
-                            seq.append(0)
-                            continue
-                    # in all other cases, just append the production rules
-                    # for the current child
-                    seq += seqs[c]
-                    c += 1
-                return left, seq
-        # if no such rule exists, the parse fails
-        raise ValueError('No rule with %s(%s) on the right-hand side exists' % (str(nodes[i]), str(actual_rights)))
-
-
 
     def parse_tree(self, x):
         """ The same as parse, but with a tree.Tree object as input.
