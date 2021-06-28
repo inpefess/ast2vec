@@ -319,6 +319,14 @@ class VariableClassifier(BaseEstimator):
                 node.id = name
                 if verbose:
                     print('decided on variable reference %s' % name)
+            elif node._label == 'Constant':
+                # if we process a Constant, we need to decide the
+                # value
+                j = predict_(self.cls_val_, x)
+                val = self.values_[j]
+                node.value = val
+                if verbose:
+                    print('decided on value %s' % str(val))
             elif node._label == 'arg':
                 # if we process an argument, this introduces a new
                 # variable
@@ -341,22 +349,28 @@ class VariableClassifier(BaseEstimator):
 
     def fit(self, trees, verbose = False):
         # initialize the training data lists
-        classifiers = ['cls_fun_name_', 'cls_class_name_', 'cls_var_name_', 'cls_fun_', 'cls_var_']
+        classifiers = ['cls_fun_name_', 'cls_class_name_', 'cls_var_name_', 'cls_fun_', 'cls_var_', 'cls_val_']
 
         training_data = {}
         for cls in classifiers:
             X = []
             Y = []
             training_data[cls] = (X, Y)
-        # initialize the list of available function, class, and variable
-        # names
+        # initialize the list of available function, class,
+        # and variable names, as well as values
         self.fun_names_   = []
         self.class_names_ = []
         self.var_names_   = []
+        # we initialize the value list with a few defaults that
+        # should always be available
+        self.values_      = [True, False, 'string', 1]
         # initialize auxiliary dictionaries mapping names to list indices
         fun_dict   = {}
         class_dict = {}
         var_dict   = {}
+        val_dict   = {}
+        for i in range(len(self.values_)):
+            val_dict[self.values_[i]] = i
 
         # iterate over all trees
         for tree in trees:
@@ -482,6 +496,11 @@ class VariableClassifier(BaseEstimator):
                         if j is not None:
                             training_data['cls_var_'][0].append(x)
                             training_data['cls_var_'][1].append(j)
+                elif node._label == 'Constant':
+                    # store the training data for the value classifier
+                    j = store_entry_(node.value, self.values_, val_dict)
+                    training_data['cls_val_'][0].append(x)
+                    training_data['cls_val_'][1].append(j)
                 elif node._label == 'arg':
                     # if we process an argument, this introduces a new
                     # variable
