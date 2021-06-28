@@ -1,6 +1,6 @@
-# ast2vec
+# ast2vec Version 0.2.0
 
-Copyright (C) 2020 - Benjamin Paassen, Jessica McBroom  
+Copyright (C) 2021 - Benjamin Paassen, Jessica McBroom  
 The University of Sydney
 
 This program is free software; you can redistribute it and/or modify
@@ -22,7 +22,14 @@ ast2vec is a neural network that can translate a Python syntax tree to a
 256-dimensional vector and a 256-dimensional vector back to a syntax tree.
 If you use ast2vec in academic work, please cite the paper
 
-* Paaßen, B., McBroom, J., Jeffries, B., Koprinska, I., and Yacef, K. (2021). What is the point? Utilizing Recursive Neural Encodings of Computer Programs. Journal of Educational Datamining. Under Review
+* Paaßen, B., McBroom, J., Jeffries, B., Koprinska, I., and Yacef, K. (2021).
+  Mapping Python Programs to Vectors using Recursive Neural Encodings.
+  Journal of Educational Datamining. In press. [Link][paper]
+
+**Note:** This network was updated in June 2021 to account for changes
+in the Python grammar since version 3.8. We also slightly changed the
+architecture, meaning less parameters, better autoencoding performance,
+and an easier interface.
 
 ## Quickstart Guide
 
@@ -34,14 +41,14 @@ following steps.
 src = "print('Hello world!')"
 import ast
 import python_ast_utils
-nodes, adj, var = python_ast_utils.ast_to_tree(ast.parse(src))
+tree = python_ast_utils.ast_to_tree(ast.parse(src))
 
 # load the ast2vec model
 import ast2vec
-model = ast2vec.load_model('ast2vec.pt')
+model = ast2vec.load_model()
 
 # translate to a vector
-_, x = model.encode(nodes, adj)
+x = model.encode(tree)
 ```
 
 The vector `x` is 256-dimensional and represents the syntax tree.
@@ -50,7 +57,7 @@ If you wish to decode a vector back into a syntax tree, you need to apply
 the following function.
 
 ```python
-nodes, adj, _ = model.decode(x, max_size = 300)
+tree = model.decode(x, max_size = 300)
 ```
 
 The optional `max_size` argument is important to prevent endless loops during
@@ -66,8 +73,8 @@ the `tutorial.ipynb` notebook.
 
 ## Background
 
-ast2vec is a recursive tree grammar autoencoder as proposed by Paaßen,
-Koprinska, and Yacef (2021). In more detail, the encoder part of the model
+ast2vec is a recursive tree grammar autoencoder as proposed by [Paaßen, Koprinska, and Yacef (2021)][rtgae].
+In more detail, the encoder part of the model
 follows the recursive behavior of a bottom-up tree parser of the Python
 programming language to generate the overall vector encoding. Consider the
 example of the syntax tree `Module(Expr(Call(Name, Str)))` which corresponds
@@ -116,6 +123,7 @@ i7 CPU and took roughly one week of real time.
 * `tree_grammar.py` : A Python implementation of regular tree grammars.
 * `tutorial.ipynb` : An ipython notebook illustrating how to use ast2vec to analyze program data.
 * `variable_classifier.py` : A [scikit-learn][sklearn] compatible classifier to infer the variable references and function calls in a syntax tree based on training data. Refer to the `tutorial.ipynb` notebook for an example.
+* `version_0_1_0` : A directory containing the version as described in the [paper][paper]. This version is only compatible with Python version 3.7 and thus not up to date anymore.
 
 ## License
 
@@ -132,8 +140,8 @@ please refer to their websites.
 
 ## Literature
 
-* Paaßen, B., McBroom, J., Jeffries, B., Koprinska, I., and Yacef, K. (2021). What is the point? Utilizing Recursive Neural Encodings of Computer Programs. Journal of Educational Datamining. Under Review
-* Paaßen, B., Koprinska, I., and Yacef, K. (2021). Recursive Tree Grammar Autoencoeders. Submitted to the 35th AAAI Conference on Artificial Intelligence (AAAI 2021). Under Review.
+* Paaßen, B., McBroom, J., Jeffries, B., Koprinska, I., and Yacef, K. (2021). Mapping Python Programs to Vectors using Recursive Neural Encodings. Journal of Educational Datamining. in press. [Link][paper]
+* Paaßen, B., Koprinska, I., and Yacef, K. (2021). Recursive Tree Grammar Autoencoeders. Submitted to the IEEE Transactions on Neural Networks and Learning Systems. Under Review. [Link][rtgae]
 * Kingma, D., and Welling, M. (2013). Auto-Encoding Variational Bayes. Proceedings of the 1st International Conference on Learning Representations (ICLR 2013). [Link][Kin2013]
 
 [NCSS]:https://ncss.edu.au "National Computer Science School (NCSS)"
@@ -144,3 +152,5 @@ please refer to their websites.
 [sklearn]: https://scikit-learn.org/stable/ "Scikit-learn"
 [torch]:https://pytorch.org/ "pyTorch"
 [Kin2013]:https://arxiv.org/abs/1312.6114 "Kingma, D., and Welling, M. (2013). Auto-Encoding Variational Bayes. Proceedings of the 1st International Conference on Learning Representations (ICLR 2013)."
+[rtgae]:https://arxiv.org/abs/2012.02097 "Paaßen, B., Koprinska, I., and Yacef, K. (2021). Recursive Tree Grammar Autoencoeders. Submitted to the IEEE Transactions on Neural Networks and Learning Systems. Under Review."
+[paper]:https://arxiv.org/abs/2103.11614 "Paaßen, B., McBroom, J., Jeffries, B., Koprinska, I., and Yacef, K. (2021). Mapping Python Programs to Vectors using Recursive Neural Encodings. Journal of Educational Datamining. in press."
