@@ -612,3 +612,84 @@ class TreeParser:
         raise ValueError('No rule with %s(%s) on the right-hand side exists' % (str(nodes[i]), str(actual_rights)))
 
 
+
+    def parse_tree(self, x):
+        """ The same as parse, but with a tree.Tree object as input.
+
+        Parameters
+        ----------
+        x: class tree.Tree
+            a tree object.
+
+        Returns
+        -------
+        nont: str
+            the nonterminal from which seq generates the input tree.
+        seq: list
+            a rule sequence seq such that self._grammar.produce_tree(seq, nont)
+            is equal to x.
+
+        Raises
+        ------
+        ValueError
+            If the input is not a tree or not part of the language.
+
+        """
+        # check if the current node is in the alphabet at all
+        if x._label not in self._grammar._alphabet:
+            raise ValueError('%s is not part of the alphabet' % str(x._label))
+        # then, parse all the children
+        actual_rights = []
+        seqs = []
+        for y in x._children:
+            # get the nonterminal and the rule sequence which
+            # generates the jth subtree
+            nont_y, seq_y = self.parse_tree(y)
+            # otherwise, append it to the child nont list
+            actual_rights.append(nont_y)
+            # and append the rule sequence to the sequence which
+            # generates the ith subtree
+            seqs.append(seq_y)
+        # retrieve the matching production rule for the current situation
+        for left, r, rights in self._rules[x._label]:
+            match = rule_matches(rights, actual_rights)
+            if match is not None:
+                if len(match) != len(rights):
+                    raise ValueError('Internal error: Match length does not correspond to rule length')
+                # build the rule sequence generating the current subtree.
+                # we first use rule r
+                seq = [r]
+                # then, process the match entry by entry
+                c = 0
+                for a in range(len(rights)):
+                    if isinstance(rights[a], str):
+                        if rights[a].endswith('?'):
+                            # if the ath nonterminal is optional, use a 1
+                            # production rule if we matched something with
+                            # this symbol and 0 otherwise.
+                            if match[a]:
+                                seq.append(1)
+                                # then produce the current child
+                                seq += seqs[c]
+                                c += 1
+                            else:
+                                seq.append(0)
+                            continue
+                        if rights[a].endswith('*'):
+                            # if the ath nonterminal is starred, use a 1
+                            # production rule for every matched symbol
+                            for m in range(len(match[a])):
+                                seq.append(1)
+                                # then produce the matched child
+                                seq += seqs[c]
+                                c += 1
+                            # finally, use a 0 rule to end the production
+                            seq.append(0)
+                            continue
+                    # in all other cases, just append the production rules
+                    # for the current child
+                    seq += seqs[c]
+                    c += 1
+                return left, seq
+        # if no such rule exists, the parse fails
+        raise ValueError('No rule with %s(%s) on the right-hand side exists' % (str(x._label), str(actual_rights)))
