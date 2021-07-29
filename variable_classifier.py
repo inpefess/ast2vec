@@ -249,24 +249,54 @@ class VariableClassifier(BaseEstimator):
                 i += 1
                 continue
             elif node._label == 'For':
-                # in a for loop, we definitely declare a new variable
-                if node._children[0]._label != 'Name' or len(node._children[0]._children) > 0:
-                    raise ValueError('This classifier can only handle for loops which declare an atomic iteration variable with a single Name node')
-                if len(self.var_names_) == 0:
-                    name = 'i'
+                # in a for loop, we definitely declare
+                # at least one iteration variable
+                if node._children[0]._label == 'Name':
+                    if len(node._children[0]._children) > 0:
+                        raise ValueError('Iteration variable is not permitted to have children in the syntax tree.')
+                    if len(self.var_names_) == 0:
+                        name = 'i'
+                    else:
+                        y = decision_function_(self.cls_var_name_, x, 1 + len(self.var_names_))
+                        j = np.argmax(y[1:])
+                        name = self.var_names_[j]
+                    if verbose:
+                        print('decided on iteration variable name %s' % name)
+                    node._children[0].id = name
+                    # put the new variable onto the list of available variables
+                    available_variables.append(name)
+                    # advance counter for the Name node
+                    i += 1
+                elif node._children[0]._label == 'Tuple':
+                    # advance counter for the 'Tuple' node
+                    i += 1
+                    child_idx = 0
+                    for it_node in node._children[0]._children:
+                        if len(it_node._children) > 0:
+                            raise ValueError('Iteration variable is not permitted to have children in the syntax tree.')
+                        # advance counter for each child
+                        i += 1
+                        it_x = decoding_list[i].detach().numpy()
+                        if len(self.var_names_) == 0:
+                            name = chr(ord('i') + child_idx)
+                            child_idx += 1
+                        else:
+                            y = decision_function_(self.cls_var_name_, it_x, 1 + len(self.var_names_))
+                            j = np.argmax(y[1:])
+                            name = self.var_names_[j]
+                        if verbose:
+                            print('decided on iteration variable name %s' % name)
+                        it_node.id = name
+                        # put the new variable onto the list of available variables
+                        available_variables.append(name)
                 else:
-                    y = decision_function_(self.cls_var_name_, x, 1 + len(self.var_names_))
-                    j = np.argmax(y[1:])
-                    name = self.var_names_[j]
-                if verbose:
-                    print('decided on iteration variable name %s' % name)
-                node._children[0].id = name
-                # put the new variable onto the list of available variables
-                available_variables.append(name)
+                    raise ValueError('This classifier can only handle for loops which declare an atomic iteration variable with a single Name node OR a tuple of iteration variables')
+
                 # put the other children onto the stack
                 for child in node._children[:0:-1]:
                     stk.append((child, False))
-                i += 2
+                # advance counter for the 'For' loop
+                i += 1
                 continue
             elif node._label == 'Call':
                 # in a function call we need to identify the function
@@ -439,23 +469,47 @@ class VariableClassifier(BaseEstimator):
                     i += 1
                     continue
                 elif node._label == 'For':
-                    # in a for loop, we definitely declare a new variable
-                    if node._children[0]._label != 'Name' or len(node._children[0]._children) > 0:
-                        raise ValueError('This classifier can only handle for loops which declare an atomic iteration variable with a single Name node')
+                    # in a for loop, we definitely declare
+                    # at least one iteration variable
+                    if node._children[0]._label == 'Name':
+                        if len(node._children[0]._children) > 0:
+                            raise ValueError('Iteration variable is not permitted to have children in the syntax tree.')
+                        # store the variable name
+                        name = node._children[0].id
+                        j = store_entry_(name, self.var_names_, var_dict)
+                        # store the training data
+                        training_data['cls_var_name_'][0].append(x)
+                        training_data['cls_var_name_'][1].append(j+1)
+                        # and we add the variable to the list of locally
+                        # available variables.
+                        store_entry_(name, available_variables, available_var_dict)
+                        i += 1
+                    elif node._children[0]._label == 'Tuple':
+                        # advance counter for the 'Tuple' node
+                        i += 1
+                        for it_node in node._children[0]._children:
+                            if len(it_node._children) > 0:
+                                raise ValueError('Iteration variable is not permitted to have children in the syntax tree.')
+                            # advance counter for each child
+                            i += 1
+                            it_x = decoding_list[i].detach().numpy()
+                            # store the new variable names
+                            name = it_node.id
+                            j = store_entry_(name, self.var_names_, var_dict)
+                            # store the training data
+                            training_data['cls_var_name_'][0].append(it_x)
+                            training_data['cls_var_name_'][1].append(j+1)
+                            # and we add the variable to the list of locally
+                            # available variables.
+                            store_entry_(name, available_variables, available_var_dict)
+                    else:
+                        raise ValueError('This classifier can only handle for loops which declare an atomic iteration variable with a single Name node OR a tuple of iteration variables')
 
-                    # store the variable name
-                    name = node._children[0].id
-                    j = store_entry_(name, self.var_names_, var_dict)
-                    # store the training data
-                    training_data['cls_var_name_'][0].append(x)
-                    training_data['cls_var_name_'][1].append(j+1)
-                    # and we add the variable to the list of locally
-                    # available variables.
-                    store_entry_(name, available_variables, available_var_dict)
                     # put the other children onto the stack
                     for child in node._children[:0:-1]:
                         stk.append((child, False))
-                    i += 2
+                    # advance counter for the 'For' loop
+                    i += 1
                     continue
                 elif node._label == 'Call':
                     # in a function call we need to identify the function
