@@ -1,0 +1,9 @@
+venv/
+.*
+*.*~
+__pycache__/
+logs/
+version_0_1_0/
+model_store/
+mock_dataset/
+*.ipynb
