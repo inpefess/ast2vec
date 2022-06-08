@@ -4,3 +4,5 @@ venv/
 model_store/
 logs/
 *.*~
+.*~
+*~
