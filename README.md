@@ -1,7 +1,9 @@
-# ast2vec Version 0.2.0
+# ast2vec Version 0.2.1
 
-Copyright (C) 2021 - Benjamin Paassen, Jessica McBroom  
+Copyright (C) 2021 - Benjamin Paassen, Jessica McBroom
 The University of Sydney
+
+Copyright (C) 2022 - Boris Shminke
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -65,6 +67,34 @@ decoding.
 
 The `ast2vec` module also contains functions `encode_trees` and `decode_points`
 to encode and decode multiple objects at the same time.
+
+## Docker Quickstart
+
+One can also do encoding described it the previous section using Docker. First, pull an existing image:
+
+```sh
+docker pull inpefess/ast2vec
+```
+
+Or build it from scratch:
+
+```sh
+docker build -t inpefess/ast2vec https://gitlab.com/inpefess/ast2vec.git
+```
+
+Then run the container:
+
+```sh
+docker run -it --rm -p 8080:8080 -p 8081:8081 -p 8082:8082 inpefess/ast2vec
+```
+
+After doing that, one can use the TorchServe REST API to request embeddings:
+
+```sh
+curl http://127.0.0.1:8080/predictions/ast2vec\
+         -H 'Content-Type: application/json'\
+         -d '{"data": "print(\"Hello, world\")"}'
+```
 
 ## Tutorial
 
