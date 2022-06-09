@@ -7,11 +7,11 @@ authors = ["Benjamin Paassen", "Jessica McBroom", "Boris Shminke <boris@shminke.
 [tool.poetry.dependencies]
 python = "^3.8"
 numpy = "*"
-torch = {url = "https://download.pytorch.org/whl/cpu/torch-1.11.0%2Bcpu-cp38-cp38-linux_x86_64.whl"}
+torch = "*"
 astor = "*"
 matplotlib = "*"
-torch-model-archiver = "=0.5.3"
-torchserve = "=0.5.3"
+torch-model-archiver = "*"
+torchserve = "*"
 nvgpu = "*"
 
 [tool.poetry.dev-dependencies]
