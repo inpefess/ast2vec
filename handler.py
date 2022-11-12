@@ -33,11 +33,13 @@ Then, start serving the model archive::
     torchserve --start --ncs --model-store model_store\
          --models ast2vec.mar
 
+See ``config.properties`` to set the ports and parallelism.
+
 Finally, use REST API to get encodings::
 
 .. code:: sh
 
-    curl http://127.0.0.1:8080/predictions/ast2vec\
+    curl http://127.0.0.1:9080/predictions/ast2vec\
          -H 'Content-Type: application/json'\
          -d '{"data": "print(\"Hello, world\")"}'
 
