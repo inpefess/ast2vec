@@ -47,14 +47,25 @@ Finally, use REST API to get encodings::
 import ast2vec
 import ast
 import python_ast_utils
+from hashlib import sha256
+from pymemcache.client import Client
+import json
 
 model = None
+memcached = Client("localhost")
 
 def entry_point_function_name(data, context):
-    global model
+    global model, memcached
 
     if not data:
         model = ast2vec.load_model()
     else:
-        tree = python_ast_utils.ast_to_tree(ast.parse(data[0]["body"]["data"]))
-        return [model.encode(tree).detach().numpy().tolist()]
+        raw_key = data[0]["body"]["data"]
+        hashed_key = sha256(raw_key.encode("utf8")).hexdigest()
+        result = memcached.get(hashed_key)
+        if result:
+            return json.loads(result.decode("utf8"))
+        tree = python_ast_utils.ast_to_tree(ast.parse(raw_key))
+        result = [model.encode(tree).detach().numpy().tolist()]
+        memcached.set(hashed_key, result)
+        return result
