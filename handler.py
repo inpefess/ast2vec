@@ -52,7 +52,7 @@ from pymemcache.client import Client
 import json
 
 model = None
-memcached = Client("localhost")
+memcached = Client("memcached")
 
 def entry_point_function_name(data, context):
     global model, memcached

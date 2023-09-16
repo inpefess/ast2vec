@@ -79,19 +79,25 @@ docker pull inpefess/ast2vec
 Or build it from scratch:
 
 ```sh
-docker build -t inpefess/ast2vec https://gitlab.com/inpefess/ast2vec.git
+git clone https://gitlab.com/inpefess/ast2vec.git
+cd ./ast2vec
+docker build -t inpefess/ast2vec .
 ```
 
-Then run the container:
+Then run the container with [memcached]():
 
 ```sh
-docker run -it --rm -p 8080:8080 -p 8081:8081 -p 8082:8082 inpefess/ast2vec
+docker network create --driver bridge ast2vec
+docker run --name memcached --network ast2vec -d memcached
+docker run --name ast2vec --network ast2vec -p 9080:9080 -p 9082:9082 -d inpefess/ast2vec
+# to monitor latency
+docker run --name prometheus -p 9090:9090 -v ./prometheus.yml:/etc/prometheus/prometheus.yml --network ast2vec -d prom/prometheus
 ```
 
 After doing that, one can use the TorchServe REST API to request embeddings:
 
 ```sh
-curl http://127.0.0.1:8080/predictions/ast2vec\
+curl http://127.0.0.1:9080/predictions/ast2vec\
          -H 'Content-Type: application/json'\
          -d '{"data": "print(\"Hello, world\")"}'
 ```
