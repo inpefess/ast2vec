@@ -89,7 +89,9 @@ Then run the container with [memcached]():
 ```sh
 docker network create --driver bridge ast2vec
 docker run --name memcached --network ast2vec -d memcached
-docker run --name ast2vec --network ast2vec -p 9080:9080 -d inpefess/ast2vec
+docker run --name ast2vec --network ast2vec -p 9080:9080 -p 9082:9082 -d inpefess/ast2vec
+# to monitor latency
+docker run --name prometheus -p 9090:9090 -v ./prometheus.yml:/etc/prometheus/prometheus.yml --network ast2vec -d prom/prometheus
 ```
 
 After doing that, one can use the TorchServe REST API to request embeddings:
