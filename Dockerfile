@@ -1,4 +1,4 @@
-FROM pytorch/torchserve:0.6.0-cpu
+FROM pytorch/torchserve:0.8.2-cpu
 ENV USER model-server
 ENV HOME /home/${USER}
 WORKDIR ${HOME}
