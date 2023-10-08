@@ -2,19 +2,32 @@
 name = "ast2vec"
 version = "0.2.0"
 description = "The ast2vec neural network to translate Python syntax trees to vectors and back."
-authors = ["Benjamin Paassen", "Jessica McBroom", "Boris Shminke <boris@shminke.ml>"]
+authors = [
+    "Benjamin Paassen",
+    "Jessica McBroom",
+    "Boris Shminke <boris@shminke.com>"
+]
 
 [tool.poetry.dependencies]
-python = "^3.8"
-numpy = "*"
-torch = "*"
+python = ">= 3.8.1, < 3.13"
+# ast2vec dependencies
+torch = {version = "==2.0.1", source="torch_cpu"}
 astor = "*"
-matplotlib = "*"
+numpy = "*"
+# serving dependencies
+torchserve = "==0.8.2"
 torch-model-archiver = "*"
-torchserve = "*"
-nvgpu = "*"
-tqdm = "*"
-pymemcache = "*"
+pyyaml = "*"
+redis = {extras = ["hiredis"], version = "*"}
+
+[[tool.poetry.source]]
+name = "torch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]

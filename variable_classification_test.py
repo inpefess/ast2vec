@@ -3,7 +3,6 @@ import python_ast_utils
 import ast2vec
 import variable_classifier
 import astor
-import matplotlib.pyplot as plt
 
 ## parse an example program
 #test_prog = """

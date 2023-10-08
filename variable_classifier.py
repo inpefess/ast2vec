@@ -4,6 +4,7 @@ tree.
 
 """
 
+# Copyright (C) 2023 Boris Shminke
 # Copyright (C) 2021
 # Benjamin Paaßen
 # The University of Sydney
@@ -28,7 +29,6 @@ __version__ = '0.2.0'
 __maintainer__ = 'Benjamin Paaßen'
 __email__  = 'benjamin.paassen@sydney.edu.au'
 
-from tqdm import tqdm
 import copy
 import torch
 import random

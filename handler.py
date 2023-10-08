@@ -1,5 +1,5 @@
 # Scripts for serving a trained ast2vec model using TorchServe
-# Copyright (C) 2022  Boris Shminke
+# Copyright (C) 2022-2023  Boris Shminke
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -47,12 +47,10 @@ Finally, use REST API to get encodings::
 import ast2vec
 import ast
 import python_ast_utils
-from hashlib import sha256
-from pymemcache.client import Client
-import json
+from redis import Redis
 
 model = None
-memcached = Client("memcached")
+redis = Redis(host="redis")
 
 def entry_point_function_name(data, context):
     global model, memcached
@@ -61,11 +59,10 @@ def entry_point_function_name(data, context):
         model = ast2vec.load_model()
     else:
         raw_key = data[0]["body"]["data"]
-        hashed_key = sha256(raw_key.encode("utf8")).hexdigest()
-        result = memcached.get(hashed_key)
+        result = redis.get(raw_key)
         if result:
-            return json.loads(result.decode("utf8"))
+            return [result]
         tree = python_ast_utils.ast_to_tree(ast.parse(raw_key))
-        result = [model.encode(tree).detach().numpy().tolist()]
-        memcached.set(hashed_key, result)
-        return result
+        result = str(model.encode(tree).detach().tolist())
+        redis.set(raw_key, result)
+        return [result]
