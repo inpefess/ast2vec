@@ -11,14 +11,23 @@ authors = [
 [tool.poetry.dependencies]
 python = ">= 3.8.1, < 3.13"
 # ast2vec dependencies
-torch = "<2.0.0"
+torch = {version = "==2.0.1", source="torch_cpu"}
 astor = "*"
+numpy = "*"
 # serving dependencies
-torchserve = "*"
+torchserve = "==0.8.2"
 torch-model-archiver = "*"
-nvgpu = "*"
 pyyaml = "*"
 redis = {extras = ["hiredis"], version = "*"}
+
+[[tool.poetry.source]]
+name = "torch_cpu"
+url = "https://download.pytorch.org/whl/cpu"
+priority = "supplemental"
+
+[[tool.poetry.source]]
+name = "PyPI"
+priority = "primary"
 
 [build-system]
 requires = ["poetry-core>=1.2.0"]
