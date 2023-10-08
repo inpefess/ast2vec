@@ -7,7 +7,6 @@ authors = ["Benjamin Paassen", "Jessica McBroom", "Boris Shminke <boris@shminke.
 [tool.poetry.dependencies]
 python = ">= 3.8.1, < 3.13"
 # ast2vec dependencies
-numpy = "*"
 torch = "<2.0.0"
 astor = "*"
 # serving dependencies
