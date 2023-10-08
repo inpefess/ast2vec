@@ -4,6 +4,8 @@ operations with it.
 
 """
 
+# Copyright (C) 2023
+# Boris Shminke
 # Copyright (C) 2021
 # Benjamin Paaßen
 # The University of Sydney
@@ -32,7 +34,6 @@ import torch
 import rtgae2
 import python_ast_utils
 import astor
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 import numpy as np
 
@@ -406,7 +407,6 @@ def interpolation_plot(model, start_tree, target_tree, grid_size = 11, X = None,
 
     # plot the grid
     offset = 0.5 / (grid_size-1)
-    plt.imshow(grid, origin = 'lower', extent = [0. - offset, 1. + offset, -0.5 - offset, +0.5 + offset])
 
     # plot the source code for the most frequent trees
     if plot_code is not None and plot_code > 0:
@@ -436,7 +436,6 @@ def interpolation_plot(model, start_tree, target_tree, grid_size = 11, X = None,
             src = astor.to_source(ast)
             if src == '':
                 src = '<empty program>'
-            plt.text(mean[0], mean[1], src, bbox=dict(facecolor='white', alpha=0.7))
 
 
 def traces_plot(start, target, traces, X, trees = None, plot_code = 0):
@@ -505,12 +504,6 @@ def traces_plot(start, target, traces, X, trees = None, plot_code = 0):
     Xarr = np.stack(Xarr, 0)
     Varr = np.stack(Varr, 0)
 
-    # draw all points that occur at least once
-    plt.scatter(Xlo[histogram >= 1, 0], Xlo[histogram >= 1, 1], c = histogram[histogram >= 1], s = 50)
-
-    # draw all arrows
-    plt.quiver(Xarr[:, 0], Xarr[:, 1], Varr[:, 0], Varr[:, 1], Carr, angles='xy', scale_units='xy', scale=1., width = 0.005)
-
     if plot_code > 0:
         text_offset =  0.05 * (np.max(Xlo[:, 0]) - np.min(Xlo[:, 0]))
 
@@ -522,7 +515,6 @@ def traces_plot(start, target, traces, X, trees = None, plot_code = 0):
             src = astor.to_source(ast)
             if src == '':
                 src = '<empty program>'
-            plt.text(Xlo[k, 0] + text_offset, Xlo[k, 1], src, bbox=dict(facecolor='white', alpha=0.7), horizontalalignment = 'left', verticalalignment = 'bottom')
 
 def construct_dynamical_system(y, X, traces, regul = 1E-3):
     """ Constructs a linear dynamical system that has a fix point at y and
@@ -650,10 +642,6 @@ def dynamical_system_plot(W, start_tree, target_tree, X, grid_size = 11, arrow_s
 
     # plot the grid
     offset = 0.5 / (grid_size-1)
-    plt.imshow(grid, origin = 'lower', extent = [0. - offset, 1. + offset, -0.5 - offset, +0.5 + offset])
-
-    # plot the dynamical system as a quiver plot
-    plt.quiver(Xgridlo[:, 0], Xgridlo[:, 1], Ugridlo[:, 0], Ugridlo[:, 1], angles='xy', scale_units='xy', scale=arrow_scale, width = 0.005, color = 'red')
 
     # if so desired, simulate a trace
     if step_size > 0.:
@@ -680,8 +668,6 @@ def dynamical_system_plot(W, start_tree, target_tree, X, grid_size = 11, arrow_s
         Xtracelo = np.dot(Xtrace - x, V.T) / scale
         Vtracelo = np.dot(Vtrace, V.T) / scale
 
-        # plot
-        plt.quiver(Xtracelo[:, 0], Xtracelo[:, 1], Vtracelo[:, 0], Vtracelo[:, 1], angles='xy', scale_units='xy', scale=1., width = 0.005, color = 'blue')
 
         # plot the source code for the steps of the trace
         if model is not None:
@@ -699,7 +685,6 @@ def dynamical_system_plot(W, start_tree, target_tree, X, grid_size = 11, arrow_s
                 src = astor.to_source(ast)
                 if src == '':
                     src = '<empty program>'
-                plt.text(Xtracelo[t, 0], Xtracelo[t, 1] + text_offset, src, bbox=dict(facecolor='white', alpha=0.7), verticalalignment='bottom')
 
 
 def cluster_plot(start, target, X, Y, means = None, traces = None, model = None, max_size = 100, variable_classifier = None):
@@ -750,9 +735,6 @@ def cluster_plot(start, target, X, Y, means = None, traces = None, model = None,
     W, scale, _ = progress_pca(x, y, X)
     Xlo = np.dot(X - x, W.T) / scale
 
-    # plot the points in colors depending on their cluster assignment
-    plt.scatter(Xlo[:, 0], Xlo[:, 1], c = Y, s = 50)
-
     # plot the traces if given
     if traces is not None:
         # check if the start is explicitly included in traces. If not, we add it
@@ -778,14 +760,10 @@ def cluster_plot(start, target, X, Y, means = None, traces = None, model = None,
         Xarr = np.stack(Xarr, 0)
         Varr = np.stack(Varr, 0)
 
-        # draw all arrows
-        plt.quiver(Xarr[:, 0], Xarr[:, 1], Varr[:, 0], Varr[:, 1], Carr, angles='xy', scale_units='xy', scale=1., width = 0.005)
-
     # plot means if given
     if means is not None:
         meanslo = np.dot(means - x, W.T) / scale
         clust_indices = np.unique(Y)
-        plt.scatter(meanslo[:, 0], meanslo[:, 1], c = clust_indices, s = 100, marker = 'd')
 
         # decode into source code if model is given
         if model is not None:
@@ -799,4 +777,3 @@ def cluster_plot(start, target, X, Y, means = None, traces = None, model = None,
                 src = astor.to_source(ast)
                 if src == '':
                     src = '<empty program>'
-                plt.text(meanslo[k, 0] + text_offset, meanslo[k, 1], src, bbox=dict(facecolor='white', alpha=0.7), horizontalalignment = 'left', verticalalignment = 'bottom')
