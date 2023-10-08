@@ -34,7 +34,6 @@ import torch
 import rtgae2
 import python_ast_utils
 import astor
-from tqdm import tqdm
 import numpy as np
 
 DIM_     = 256
@@ -81,10 +80,7 @@ def encode_trees(model, trees, verbose = False):
 
     """
     # set up the progress bar if so desired
-    if verbose:
-        progbar = tqdm
-    else:
-        progbar = lambda x : x
+    progbar = lambda x : x
 
     # initialize the encoding matrix
     X = np.zeros((len(trees), DIM_))
@@ -119,10 +115,7 @@ def decode_points(model, X, max_size = 100, verbose = False):
 
     """
     # set up the progress bar if so desired
-    if verbose:
-        progbar = tqdm
-    else:
-        progbar = lambda x : x
+    progbar = lambda x : x
 
     # initialize the tree list
     trees = []

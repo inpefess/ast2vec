@@ -5,6 +5,7 @@ the grammar of the Python programming language.
 
 """
 
+# Copyright (C) 2023 Boris Shminke
 # Copyright (C) 2021
 # Benjamin Paaßen
 # The University of Sydney
@@ -30,7 +31,6 @@ __maintainer__ = 'Benjamin Paaßen'
 __email__  = 'benjamin.paassen@sydney.edu.au'
 
 import ast
-from tqdm import tqdm
 import tree
 import tree_grammar
 
@@ -424,11 +424,7 @@ def parse_asts(srcs, filter_uniques = False, ids = None, ignore_syntax_errors = 
         filter_uniques is set to True.
 
     """
-    if not verbose:
-        progbar = lambda x : x
-    else:
-        progbar = tqdm
-        print('starting parsing')
+    progbar = lambda x : x
 
     if ids is None:
         ids = list(range(len(srcs)))
