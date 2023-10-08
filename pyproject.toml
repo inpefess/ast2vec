@@ -5,15 +5,18 @@ description = "The ast2vec neural network to translate Python syntax trees to ve
 authors = ["Benjamin Paassen", "Jessica McBroom", "Boris Shminke <boris@shminke.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = ">= 3.8.1, < 3.13"
+# ast2vec dependencies
 numpy = "*"
-torch = "*"
+torch = "<2.0.0"
 astor = "*"
 matplotlib = "*"
-torch-model-archiver = "*"
-torchserve = "*"
-nvgpu = "*"
 tqdm = "*"
+# serving dependencies
+torchserve = "*"
+torch-model-archiver = "*"
+nvgpu = "*"
+pyyaml = "*"
 pymemcache = "*"
 
 [build-system]
