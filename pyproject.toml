@@ -2,7 +2,7 @@
 name = "ast2vec"
 version = "0.2.0"
 description = "The ast2vec neural network to translate Python syntax trees to vectors and back."
-authors = ["Benjamin Paassen", "Jessica McBroom", "Boris Shminke <boris@shminke.ml>"]
+authors = ["Benjamin Paassen", "Jessica McBroom", "Boris Shminke <boris@shminke.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.8"
