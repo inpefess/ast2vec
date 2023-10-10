@@ -39,7 +39,7 @@ Finally, use REST API to get encodings::
 
 .. code:: sh
 
-    curl http://127.0.0.1:9080/predictions/ast2vec\
+    curl http://127.0.0.1:8080/predictions/ast2vec\
          -H 'Content-Type: application/json'\
          -d '{"data": "print(\"Hello, world\")"}'
 
@@ -48,21 +48,23 @@ import ast2vec
 import ast
 import python_ast_utils
 from redis import Redis
+import os
 
-model = None
-redis = Redis(host="redis")
+cache_requests = "REDIS_HOST" in os.environ
+if cache_requests:
+    redis = Redis(host=os.environ["REDIS_HOST"])
+model = ast2vec.load_model()
 
 def entry_point_function_name(data, context):
-    global model, memcached
-
-    if not data:
-        model = ast2vec.load_model()
-    else:
-        raw_key = data[0]["body"]["data"]
-        result = redis.get(raw_key)
-        if result:
-            return [result]
-        tree = python_ast_utils.ast_to_tree(ast.parse(raw_key))
-        result = str(model.encode(tree).detach().tolist())
-        redis.set(raw_key, result)
+    if data:
+        key = data[0]["body"]["data"]
+        if cache_requests:
+            result = redis.get(key)
+            if result:
+                return [result]
+        result =str(model.encode(
+            python_ast_utils.ast_to_tree(ast.parse(key))
+        ).detach().tolist())
+        if cache_requests:
+            redis.set(key, result)
         return [result]
