@@ -84,22 +84,28 @@ cd ./ast2vec
 docker build -t inpefess/ast2vec .
 ```
 
-Then run the container with [redis](https://redis.com) (for request caching):
+Then run the container with:
 
 ```sh
-docker network create --driver bridge ast2vec
-docker run --name redis --network ast2vec -d redis
-docker run --name ast2vec --network ast2vec -p 9080:9080 -p 9082:9082 -d inpefess/ast2vec
-# to monitor latency
-docker run --name prometheus -p 9090:9090 -v ./prometheus.yml:/etc/prometheus/prometheus.yml --network ast2vec -d prom/prometheus
+docker run --name ast2vec -p 8080:8080 -d inpefess/ast2vec
 ```
 
 After doing that, one can use the TorchServe REST API to request embeddings:
 
 ```sh
-curl http://127.0.0.1:9080/predictions/ast2vec\
+curl http://127.0.0.1:8080/predictions/ast2vec\
          -H 'Content-Type: application/json'\
          -d '{"data": "print(\"Hello, world\")"}'
+```
+
+In case you have a [Kubernetes](https://kubernetes.io) cluster, you
+can run several containers (`ast2vec`, [redis](https://redis.io) for
+caching requests, [prometheus](https://prometheus.io) for collecting
+metrics, and [grafana](https://grafana.com) for drawing dashboards)
+with a single command:
+
+```sh
+kubectl apply -f ast2vec.yml
 ```
 
 ## Tutorial
