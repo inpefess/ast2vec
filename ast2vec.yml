@@ -32,6 +32,7 @@ spec:
         image: redis
         ports:
         - containerPort: 6379
+          name: redis
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -54,7 +55,9 @@ spec:
         image: inpefess/ast2vec
         ports:
         - containerPort: 8080
+          name: torchserve
         - containerPort: 8082
+          name: torchserve-metr
         env:
         - name: REDIS_HOST
           value: redis
@@ -81,6 +84,7 @@ spec:
         image: prom/prometheus
         ports:
         - containerPort: 9090
+          name: prometheus
         volumeMounts:
           - name: config-vol
             mountPath: /etc/prometheus
@@ -113,6 +117,7 @@ spec:
         image: grafana/grafana
         ports:
         - containerPort: 3000
+          name: grafana
 ---
 apiVersion: v1
 kind: Service
@@ -125,7 +130,8 @@ spec:
   ports:
   - protocol: TCP
     port: 6379
-    targetPort: 6379
+    targetPort: redis
+    name: redis
 ---
 apiVersion: v1
 kind: Service
@@ -138,7 +144,8 @@ spec:
   ports:
   - protocol: TCP
     port: 8080
-    targetPort: 8080
+    targetPort: torchserve
+    name: torchserve
 ---
 apiVersion: v1
 kind: Service
@@ -151,7 +158,8 @@ spec:
   ports:
   - protocol: TCP
     port: 8082
-    targetPort: 8082
+    targetPort: torchserve-metr
+    name: torchserve-metr
 ---
 apiVersion: v1
 kind: Service
@@ -164,7 +172,8 @@ spec:
   ports:
   - protocol: TCP
     port: 9090
-    targetPort: 9090
+    targetPort: prometheus
+    name: prometheus
 ---
 apiVersion: v1
 kind: Service
@@ -177,4 +186,5 @@ spec:
   ports:
   - protocol: TCP
     port: 3000
-    targetPort: 3000
+    targetPort: grafana
+    name: grafana
