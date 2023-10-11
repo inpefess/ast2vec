@@ -188,3 +188,26 @@ spec:
     port: 3000
     targetPort: grafana
     name: grafana
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ast2vec-ingress
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /predictions/ast2vec
+        pathType: Prefix
+        backend:
+          service:
+            name: ast2vec
+            port:
+              name: torchserve
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: grafana
+            port:
+              name: grafana
