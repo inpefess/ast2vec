@@ -108,6 +108,25 @@ with a single command:
 kubectl apply -f ast2vec.yml
 ```
 
+Then one can get the ``ast2vec`` service port from the Kubernetes
+cluster:
+
+```sh
+kubectl describe service ast2vec | grep NodePort
+```
+
+This port should be used instead of ``8080`` in the preceding
+``curl`` example. Also replace ``127.0.0.1`` by the cluste IP. It can
+be found in the following command output:
+
+```sh
+kubectl cluster-info
+```
+
+Latency and other metrics can be monitored through Grafana
+dashboards. One can access them by opening
+``[kubernetes-cluster-ip]:[grafana-service-port]`` in a browser.
+
 ## Tutorial
 
 A more detailed tutorial using an entire mock data set of programs is given in
