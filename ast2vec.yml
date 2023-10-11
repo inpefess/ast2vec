@@ -1,0 +1,190 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 10s
+    scrape_configs:
+      - job_name: 'ast2vec'
+        static_configs:
+          - targets: ['ast2vec-metrics:8082']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+          name: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ast2vec
+  labels:
+    app: ast2vec
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ast2vec
+  template:
+    metadata:
+      labels:
+        app: ast2vec
+    spec:
+      containers:
+      - name: ast2vec
+        image: inpefess/ast2vec
+        ports:
+        - containerPort: 8080
+          name: torchserve
+        - containerPort: 8082
+          name: torchserve-metr
+        env:
+        - name: REDIS_HOST
+          value: redis
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  labels:
+    app: prometheus
+spec:
+  template:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      containers:
+      - name: prometheus
+        image: prom/prometheus
+        ports:
+        - containerPort: 9090
+          name: prometheus
+        volumeMounts:
+          - name: config-vol
+            mountPath: /etc/prometheus
+      volumes:
+        - name: config-vol
+          configMap:
+            name: prometheus-config
+            items:
+              - key: prometheus.yml
+                path: prometheus.yml
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+      - name: grafana
+        image: grafana/grafana
+        ports:
+        - containerPort: 3000
+          name: grafana
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+  - protocol: TCP
+    port: 6379
+    targetPort: redis
+    name: redis
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ast2vec
+spec:
+  type: NodePort
+  selector:
+    app: ast2vec
+  ports:
+  - protocol: TCP
+    port: 8080
+    targetPort: torchserve
+    name: torchserve
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ast2vec-metrics
+spec:
+  type: ClusterIP
+  selector:
+    app: ast2vec
+  ports:
+  - protocol: TCP
+    port: 8082
+    targetPort: torchserve-metr
+    name: torchserve-metr
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+spec:
+  type: ClusterIP
+  selector:
+    app: prometheus
+  ports:
+  - protocol: TCP
+    port: 9090
+    targetPort: prometheus
+    name: prometheus
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+spec:
+  type: NodePort
+  selector:
+    app: grafana
+  ports:
+  - protocol: TCP
+    port: 3000
+    targetPort: grafana
+    name: grafana
