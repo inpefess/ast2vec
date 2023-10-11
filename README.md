@@ -70,7 +70,8 @@ to encode and decode multiple objects at the same time.
 
 ## Docker Quickstart
 
-One can also do encoding described it the previous section using Docker. First, pull an existing image:
+One can also do encoding described it the previous section using
+Docker. First, pull an existing image:
 
 ```sh
 docker pull inpefess/ast2vec
@@ -90,7 +91,8 @@ Then run the container with:
 docker run --name ast2vec -p 8080:8080 -d inpefess/ast2vec
 ```
 
-After doing that, one can use the TorchServe REST API to request embeddings:
+After doing that, one can use the TorchServe REST API to request
+embeddings:
 
 ```sh
 curl http://127.0.0.1:8080/predictions/ast2vec\
@@ -108,24 +110,18 @@ with a single command:
 kubectl apply -f ast2vec.yml
 ```
 
-Then one can get the ``ast2vec`` service port from the Kubernetes
-cluster:
-
-```sh
-kubectl describe service ast2vec | grep NodePort
-```
-
-This port should be used instead of ``8080`` in the preceding
-``curl`` example. Also replace ``127.0.0.1`` by the cluste IP. It can
-be found in the following command output:
+Then get the Kubernetes cluster IP:
 
 ```sh
 kubectl cluster-info
 ```
 
+and use this IP (with no port specified) instead of
+``127.0.0.1:8080`` in the preceding ``curl`` example.
+
 Latency and other metrics can be monitored through Grafana
 dashboards. One can access them by opening
-``[kubernetes-cluster-ip]:[grafana-service-port]`` in a browser.
+``[kubernetes-cluster-ip]/grafana`` in a browser.
 
 ## Tutorial
 
